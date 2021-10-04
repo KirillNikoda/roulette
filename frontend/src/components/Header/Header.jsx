@@ -11,6 +11,7 @@ const useStyles = makeStyles({
 	},
 	btn: {
 		color: '#fff',
+		backgroundColor: '#AD1457',
 	},
 });
 
@@ -21,31 +22,24 @@ export const Header = () => {
 
 	const connectWallet = async () => {
 		if (typeof window.ethereum !== 'undefined') {
-			setDisabled(true);
-			await window.ethereum.request({
-				method: 'eth_requestAccounts',
-			});
+			console.log(window.ethereum);
+			try {
+				setDisabled(true);
+				await window.ethereum.request({
+					method: 'eth_requestAccounts',
+				});
+			} catch (e) {
+				setDisabled(false);
+			}
 		}
 	};
 
 	useEffect(() => {
-		if (typeof window.ethereum !== 'undefined') {
-			window.ethereum
-				.request({
-					method: 'eth_requestAccounts',
-				})
-				.then(async (accounts) => {
-					const signer = new ethers.providers.Web3Provider(
-						window.ethereum
-					).getSigner();
-					const address = await signer.getAddress();
-
-					console.log(address, accounts);
-
-					if (accounts.includes(address.toLocaleLowerCase())) {
-						setDisabled(true);
-					}
-				});
+		if (
+			typeof window.ethereum !== 'undefined' &&
+			window.ethereum._state.isConnected
+		) {
+			setDisabled(true);
 		}
 	}, []);
 
@@ -53,10 +47,11 @@ export const Header = () => {
 		<header>
 			<Box className={styles.root}>
 				<Button
-					disabled={disabled}
 					onClick={connectWallet}
+					disabled={disabled}
 					className={styles.btn}
 					variant='outlined'
+					color='default'
 				>
 					Connect Wallet
 				</Button>
