@@ -6,14 +6,18 @@ import "./IERC20.sol";
 contract Roulette {
     mapping(address => mapping(address => uint256)) public userDeposit;
 
-    function deposit(address tokenAddress, uint256 amount) public returns(bool success) {
-        userDeposit[msg.sender][tokenAddress] = userDeposit[msg.sender][tokenAddress] + amount;
-        IERC20 token = IERC20(tokenAddress);
-        token.transferFrom( msg.sender, address(this), amount );
+    function deposit(address _tokenAddress, uint256 _amount) public returns(bool success) {
+        userDeposit[msg.sender][_tokenAddress] = userDeposit[msg.sender][_tokenAddress] + _amount;
+        IERC20 token = IERC20(_tokenAddress);
+        token.transferFrom( msg.sender, address(this), _amount );
         return true;
     }
 
-    function withdraw() public returns(bool success) {
-        
+    function withdraw(address _tokenAddress, uint256 _amount) public returns(bool success) {
+        require(userDeposit[msg.sender][_tokenAddress] >= _amount);
+
+        require(IERC20(_tokenAddress).transfer(msg.sender, _amount));
+
+        return true;
     }
 }
